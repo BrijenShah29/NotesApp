@@ -13,10 +13,12 @@ import dagger.hilt.android.AndroidEntryPoint
 import notesapi.by.brijen.R
 import notesapi.by.brijen.Utils.HelperClass
 import notesapi.by.brijen.Utils.NetworkResult
+import notesapi.by.brijen.Utils.TokenManager
 import notesapi.by.brijen.databinding.FragmentRegistrationBinding
 import notesapi.by.brijen.models.UserRequest
 import notesapi.by.brijen.viewModel.AuthViewModel
 import org.json.JSONObject
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class RegistrationFragment : Fragment() {
@@ -25,6 +27,9 @@ class RegistrationFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val helperClass = HelperClass()
+
+    @Inject
+    lateinit var tokenManager: TokenManager
 
     private val authViewModel by viewModels<AuthViewModel>()
 
@@ -36,8 +41,9 @@ class RegistrationFragment : Fragment() {
         // Inflate the layout for this fragment
         _binding = FragmentRegistrationBinding.inflate(layoutInflater)
 
-
-
+        if(tokenManager.getToken()!=null){
+            findNavController().navigate(R.id.action_registrationFragment_to_mainFragment)
+        }
 
         return binding.root
     }
@@ -82,7 +88,7 @@ class RegistrationFragment : Fragment() {
     private fun validateUserInput(): Pair<Boolean, String> {
 
         val userRequest = getUserRequest()
-        return helperClass.validateCredentials(userRequest.username,userRequest.email,userRequest.password)
+        return helperClass.validateCredentials(userRequest.username,userRequest.email,userRequest.password,false)
 
     }
 
@@ -95,6 +101,7 @@ class RegistrationFragment : Fragment() {
                 is NetworkResult.Success -> {
 
                     // Token Implementation
+                     tokenManager.saveToken(it.data!!.token)
 
                     //Navigation to main Fragment
                     findNavController().navigate(R.id.action_registrationFragment_to_mainFragment)

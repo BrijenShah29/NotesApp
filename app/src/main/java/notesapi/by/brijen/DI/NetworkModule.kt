@@ -5,9 +5,15 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import notesapi.by.brijen.Utils.Constants.BASE_URL
+import notesapi.by.brijen.api.AuthNetworkInterceptor
+import notesapi.by.brijen.api.NotesAPI
 import notesapi.by.brijen.api.UserAPI
+import okhttp3.Interceptor
+import okhttp3.OkHttpClient
 import retrofit2.Retrofit
+import retrofit2.Retrofit.Builder
 import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.create
 import javax.inject.Singleton
 
 @Module
@@ -16,18 +22,34 @@ class NetworkModule {
 
     @Singleton
     @Provides
-    fun providesRetrofit() : Retrofit {
+    fun providesRetrofitBuilder() : Retrofit.Builder {
         return Retrofit.Builder()
             .addConverterFactory(GsonConverterFactory.create())
             .baseUrl(BASE_URL)
-            .build()
+    }
+
+
+    @Singleton
+    @Provides
+    fun providesOkHttpClient(authInterceptor: AuthNetworkInterceptor) : OkHttpClient
+    {
+        return OkHttpClient.Builder().addInterceptor(authInterceptor).build()
     }
 
     @Singleton
     @Provides
-    fun providesUserAPI(retrofit: Retrofit) : UserAPI{
-        return retrofit.create(UserAPI::class.java)
+    fun providesUserAPI(retrofitBuilder: Retrofit.Builder) : UserAPI{
+        return retrofitBuilder.build().create(UserAPI::class.java)
     }
+
+    @Singleton
+    @Provides
+    fun providesNotesAPI(retrofitBuilder: Retrofit.Builder, okHttpClient: OkHttpClient) : NotesAPI {
+        return retrofitBuilder
+            .client(okHttpClient)
+            .build().create(NotesAPI::class.java)
+    }
+
 
 
 }

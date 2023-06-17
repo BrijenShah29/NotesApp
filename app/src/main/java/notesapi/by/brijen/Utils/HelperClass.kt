@@ -5,11 +5,11 @@ import android.util.Patterns
 
 class HelperClass {
 
-    fun validateCredentials(username:String, emailAddress : String, password : String) : Pair<Boolean,String>
+    fun validateCredentials(username:String, emailAddress : String, password : String, isLogin : Boolean) : Pair<Boolean,String>
     {
         var result = Pair(true,"")
 
-        if(TextUtils.isEmpty(username)||TextUtils.isEmpty(emailAddress)||TextUtils.isEmpty(password))
+        if(!isLogin && TextUtils.isEmpty(username)||TextUtils.isEmpty(emailAddress)||TextUtils.isEmpty(password))
         {
             result = Pair(false,"Please Provide Credentials")
 
@@ -27,4 +27,22 @@ class HelperClass {
         return result
     }
 
+    fun isPalindrome(input : String) : Boolean
+    {
+        var i = 0
+        var j = input.length - 1
+        var result = true
+
+        while (i < j)
+        {
+            if(input[i] != input[j])
+            {
+                result = false
+                break
+            }
+            i++
+            j--
+        }
+        return result
+    }
 }
